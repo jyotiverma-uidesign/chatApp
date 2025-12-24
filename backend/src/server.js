@@ -1,35 +1,29 @@
 import express from "express";
 import dotenv from "dotenv";
-import Path from "path";
+import path from "path";
 import authRoutes from "./routes/auth.route.js"; // your auth routes
 import { connectDB } from "./lib/db.js";
+import { ENV } from "./lib/env.js";
 
 dotenv.config();
 
 const app = express();
+const __dirname=path.resolve()
 const PORT = process.env.PORT || 3000;
 
-// Middleware to parse JSON
 app.use(express.json());
+app.use("/api/auth",authRoutes);
+app.use("/api/messages",messageRoutes);
 
-// Connect to MongoDB
-const startServer = async () => {
-  try {
-    await connectDB();
-    app.listen(PORT, () => {
-      console.log(`Server running on port: ${PORT}`);
-    });
-  } catch (err) {
-    console.error("Failed to start server:", err);
-  }
-};
+if (ENV.NODE_ENV === "production"){
+  app.use(express.static(path.join(__dirname,"../frontend/dist")));
+  app.get("*",(_, res)=>{
+    res.sendFile(path.join(__dirname,"../frontend","dist","index.html"));
+  })
+}
+app.listen(PORT,()=>{
+  console.log("server running on part:"+PORT);
+  connectDB();
+})
 
-startServer();
 
-// Routes
-app.use("/api/auth", authRoutes);
-
-// Optional: test route
-app.get("/", (req, res) => {
-  res.send("API is running");
-});

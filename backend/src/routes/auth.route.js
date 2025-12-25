@@ -1,28 +1,19 @@
-// import express from "express";
-// const router=express.Router();
-// router.get("/signup",(req,res)=>{
-//     res.send("signup endpoint");
-// })
-// router.get("/login",(req,res)=>{
-//     res.send("Login endpoint");
-// })
-// router.get("/logout",(req,res)=>{
-//     res.send("Logout endpoint");
-// });
-// router.get("/update",(req,res)=>{
-//     res.send("update endpoint");
-// })
-
-// export default router;
 
 import express from "express";
-import { signup,login,logout} from "../controllers/auth.controller.js";
-
+import { signup,login,logout, updateProfile} from "../controllers/auth.controller.js";
+import { protectRoute } from "../middleware/auth.middleware.js";
+import { arcjetProtection } from "../middleware/arcjet.middleware.js";
 const router = express.Router();
+router.use(arcjetProtection);
 
-router.post("/signup",signup);
-router.post("/login", login);
-router.post("/logout",logout);
+router.post("/signup",arcjetProtection,signup);
+router.post("/login",arcjetProtection,login);
+
+router.post("/logout",arcjetProtection,logout);
+router.put("/update-profile",protectRoute,updateProfile);
+router.get("/check",arcjetProtection,protectRoute,(req,res)=>{
+    res.status(200).json({message:"user is authenticated"});
+});
 
 export default router;
 

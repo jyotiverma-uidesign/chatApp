@@ -5,9 +5,10 @@ import toast from "react-hot-toast";
 export const useAuthStore = create((set) => ({
   authUser: null,
 
-  // ✅ FIX 1: correct spelling
+
   isCheckingAuth: true,
   isSigningUp:false,
+  isLoggingIn:false,
 
   checkAuth: async () => {
     try {
@@ -38,5 +39,16 @@ export const useAuthStore = create((set) => ({
     finally{
       set({isSigningUp:false})
     }
-  }
+  },
+  Login:async(data)=>{
+    set({isLoggingIn:true});
+    try{
+      const res = await axiosInstance.post("/auth/login",data);
+      set({authUser:res.data});
+      toast.error(error.response.data.message);
+    }finally{
+      set({isLoggingIn:false});
+    }
+  },
 }));
+

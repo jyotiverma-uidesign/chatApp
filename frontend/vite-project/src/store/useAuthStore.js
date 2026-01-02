@@ -1,15 +1,42 @@
-import {create} from 'zustand';
+import { create } from "zustand";
+import { axiosInstance } from "../lib/axios.js";
+import toast from "react-hot-toast";
 
-export const useAuthStore=create((set)=>({
-    authUser:{name:"jyoti,_id:123,age:20"},
-    isLoggedIn:false,
-    isLoading:false,
-    
-    login:()=>{
-        console.log("login called");
-        set({isLoggedIn:true,isLoading:true});
-        
-    }   
-}
+export const useAuthStore = create((set) => ({
+  authUser: null,
 
-));
+  // ✅ FIX 1: correct spelling
+  isCheckingAuth: true,
+  isSigningUp:false,
+
+  checkAuth: async () => {
+    try {
+      const res = await axiosInstance.get("/auth/check");
+
+      set({ authUser: res.data });
+    } catch (error) {
+      // 401 is normal when user is not logged in
+      console.log("error in authcheck", error.response?.status);
+      set({ authUser: null });
+    } finally {
+      set({ isCheckingAuth: false });
+    }
+  },
+  signup:async(data)=>{
+    set({isSigningUp:true})
+  
+  try{
+    const res=await axiosInstance.post("/auth/signup",data);
+    set({authUser:res.data});
+    toast.success("account created sucesssully")
+  }
+
+    catch(error){
+      toast.error(error.response.data.message)
+
+    }
+    finally{
+      set({isSigningUp:false})
+    }
+  }
+}));

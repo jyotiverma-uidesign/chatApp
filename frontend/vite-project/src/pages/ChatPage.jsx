@@ -1,3 +1,4 @@
+import React from "react";
 import { useChatStore } from "../store/useChatStore";
 
 import BorderAnimatedContainer from "../components/BorderAnimation";
